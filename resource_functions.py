@@ -2,7 +2,10 @@ import geopandas as gpd
 import matplotlib.pyplot as plt
 import numpy as np
 import matplotlib.patches as mpatches
-
+import requests
+from zipfile import ZipFile
+from io import BytesIO
+import os
 
 def plot_income_group(wdi_country_Slice, incomegroups):
     world = gpd.read_file(gpd.datasets.get_path('naturalearth_lowres'))
@@ -31,3 +34,20 @@ def plot_income_group(wdi_country_Slice, incomegroups):
         legends.append(red_patch)
     ax.legend(handles=legends, bbox_to_anchor=(1.05, 1), loc='upper left', borderaxespad=0. )
     ax.set_title("Income groups")
+
+
+def coleta_dos_dados(url, output_path):
+    response = requests.get(url)
+    if response.status_code == 200:
+        arquivo_zip = ZipFile(BytesIO(response.content))
+
+        pasta_bases = output_path
+        if not os.path.exists(pasta_bases):
+            os.makedirs(pasta_bases)
+
+        print(arquivo_zip.namelist())
+
+        arquivo_zip.extractall('./bases/')
+        print('Arquivos extraídos com sucesso!')
+    else:
+        print('Falha no download do arquivo.')
